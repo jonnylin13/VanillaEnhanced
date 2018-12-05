@@ -1,5 +1,5 @@
-./settings/
-./settings/*
+.settings/
+.settings/*
 bin/
 bin/*
 .classpath
