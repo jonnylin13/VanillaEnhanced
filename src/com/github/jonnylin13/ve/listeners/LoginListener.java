@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.github.jonnylin13.ve.VEPlugin;
-import com.github.jonnylin13.ve.objects.VEUser;
+import com.github.jonnylin13.ve.objects.User;
 
 public class LoginListener implements Listener {
 	
@@ -22,20 +22,24 @@ public class LoginListener implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		if (this.vep.userExists(player.getUniqueId())) {
-			this.vep.setPermissions(player);
-		} else {
-			VEUser newUser = new VEUser(player.getUniqueId(), this.vep.getDefaultGroups());
-			VEPlugin.log.info(newUser.toString());
-			this.vep.addUser(newUser);
-			this.vep.setPermissions(player);
-			// TODO: Save player async
+		User newUser = new User(player.getUniqueId(), this.vep.getDefaultGroups());
+		newUser = this.vep.getDb().loadUser(newUser);
+		this.vep.addUser(newUser);
+		if (!this.vep.setPermissions(player, newUser)) {
+			VEPlugin.log.info("<VE> Could not set permissions for player: " + player.getName());
 		}
 	}
 	
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		// TODO: Save player sync
+		// TODO: Save player async
+		Player player = event.getPlayer();
+		User user = this.vep.getUser(player);
+		if (user != null) {
+			this.vep.removeUser(user);
+		}
+		
+		
 	}
 
 }

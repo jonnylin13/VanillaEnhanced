@@ -14,12 +14,12 @@ import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 import com.github.jonnylin13.ve.VEPlugin;
-import com.github.jonnylin13.ve.objects.VEConfig;
-import com.github.jonnylin13.ve.objects.VEGroup;
-import com.github.jonnylin13.ve.objects.VEUser;
+import com.github.jonnylin13.ve.objects.Config;
+import com.github.jonnylin13.ve.objects.Group;
+import com.github.jonnylin13.ve.objects.User;
 import com.github.jonnylin13.ve.tools.Filez;
-import com.github.jonnylin13.ve.tools.Json;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 public class FileDatabase {
@@ -72,7 +72,8 @@ public class FileDatabase {
 	
 	public <T> void save(File file, Supplier<T> func) throws IOException {
 		try (Writer writer = new FileWriter(file.getAbsolutePath())) {
-			Json.toJson(func.get(), writer);
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			gson.toJson(func.get(), writer);
 		}
 	}
 	
@@ -80,27 +81,27 @@ public class FileDatabase {
 		this.vep.getServer().getScheduler().runTaskLater(this.vep, new SaveAsync<T>(this, file, func), 0L);
 	}
 	
-	public VEConfig loadConfig() throws IOException {
+	public Config loadConfig() throws IOException {
 		String jsonString = Filez.readFile(this.config, Charset.defaultCharset());
-		Gson gson = new Gson();
-		VEConfig result = gson.fromJson(jsonString, VEConfig.class);
-		if (result == null) return new VEConfig("", "", "", "");
+		Gson gson = (new GsonBuilder()).setPrettyPrinting().create();
+		Config result = gson.fromJson(jsonString, Config.class);
+		if (result == null) return new Config("", "", "", "");
 		return result;
 	}
 	
 	@Deprecated
-	public HashMap<UUID, VEUser> loadUsers() throws IOException {
+	public HashMap<UUID, User> loadUsers() throws IOException {
 		String jsonString = Filez.readFile(this.users, Charset.defaultCharset());
 		Gson gson = new Gson();
-		Type type = new TypeToken<HashMap<UUID, VEUser>>() {}.getType();
-		HashMap<UUID, VEUser> result = gson.fromJson(jsonString, type);
-		if (result == null) return new HashMap<UUID, VEUser>();
+		Type type = new TypeToken<HashMap<UUID, User>>() {}.getType();
+		HashMap<UUID, User> result = gson.fromJson(jsonString, type);
+		if (result == null) return new HashMap<UUID, User>();
 		return result;
 	}
 	
 	@Deprecated
-	public HashMap<UUID, VEUser> loadUsersAsync() throws IOException {
-		Future<HashMap<UUID, VEUser>> result = this.vep.getServer().getScheduler().callSyncMethod(this.vep, new LoadUsersAsync(this));
+	public HashMap<UUID, User> loadUsersAsync() throws IOException {
+		Future<HashMap<UUID, User>> result = this.vep.getServer().getScheduler().callSyncMethod(this.vep, new LoadUsersAsync(this));
 		try {
 			// TODO: Needs testing
 			VEPlugin.log.info("<VE> Database load users task completed!");
@@ -110,20 +111,20 @@ public class FileDatabase {
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
-		return new HashMap<UUID, VEUser>();
+		return new HashMap<UUID, User>();
 	}
 	
-	public HashMap<String, VEGroup> loadGroups() throws IOException {
+	public HashMap<String, Group> loadGroups() throws IOException {
 		String jsonString = Filez.readFile(this.groups, Charset.defaultCharset());
 		Gson gson = new Gson();
-		Type type = new TypeToken<HashMap<String, VEGroup>>() {}.getType();
-		HashMap<String, VEGroup> result = gson.fromJson(jsonString, type);
-		if (result == null) return new HashMap<String, VEGroup>();
+		Type type = new TypeToken<HashMap<String, Group>>() {}.getType();
+		HashMap<String, Group> result = gson.fromJson(jsonString, type);
+		if (result == null) return new HashMap<String, Group>();
 		return result;
 	}
 	
-	public HashMap<String, VEGroup> loadGroupsAsync() throws IOException {
-		Future<HashMap<String, VEGroup>> result = this.vep.getServer().getScheduler().callSyncMethod(this.vep, new LoadGroupsAsync(this));
+	public HashMap<String, Group> loadGroupsAsync() throws IOException {
+		Future<HashMap<String, Group>> result = this.vep.getServer().getScheduler().callSyncMethod(this.vep, new LoadGroupsAsync(this));
 		try {
 			// TODO: Needs testing
 			VEPlugin.log.info("<VE> Database load groups task completed!");
@@ -133,7 +134,7 @@ public class FileDatabase {
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
-		return new HashMap<String, VEGroup>();
+		return new HashMap<String, Group>();
 	}
 	
 	public File getUsersFile() {
@@ -173,7 +174,7 @@ public class FileDatabase {
 	}
 	
 	@Deprecated
-	public class LoadUsersAsync implements Callable<HashMap<UUID, VEUser>> {
+	public class LoadUsersAsync implements Callable<HashMap<UUID, User>> {
 		
 		private FileDatabase db;
 		
@@ -182,17 +183,17 @@ public class FileDatabase {
 		}
 
 		@Override
-		public HashMap<UUID, VEUser> call() throws IOException {
+		public HashMap<UUID, User> call() throws IOException {
 			try {
 				return this.db.loadUsers();
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
-			return new HashMap<UUID, VEUser>();
+			return new HashMap<UUID, User>();
 		}
 	}
 	
-	public class LoadGroupsAsync implements Callable<HashMap<String, VEGroup>> {
+	public class LoadGroupsAsync implements Callable<HashMap<String, Group>> {
 		private FileDatabase db;
 		
 		public LoadGroupsAsync(FileDatabase db) {
@@ -200,13 +201,13 @@ public class FileDatabase {
 		}
 		
 		@Override
-		public HashMap<String, VEGroup> call() throws IOException {
+		public HashMap<String, Group> call() throws IOException {
 			try {
 				return this.db.loadGroups();
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
-			return new HashMap<String, VEGroup>();
+			return new HashMap<String, Group>();
 		}
 	}
 

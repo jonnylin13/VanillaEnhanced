@@ -14,9 +14,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.github.jonnylin13.ve.db.FileDatabase;
 import com.github.jonnylin13.ve.db.SQLDatabase;
 import com.github.jonnylin13.ve.listeners.LoginListener;
-import com.github.jonnylin13.ve.objects.VEConfig;
-import com.github.jonnylin13.ve.objects.VEGroup;
-import com.github.jonnylin13.ve.objects.VEUser;
+import com.github.jonnylin13.ve.objects.Config;
+import com.github.jonnylin13.ve.objects.Group;
+import com.github.jonnylin13.ve.objects.User;
 
 public class VEPlugin extends JavaPlugin {
 
@@ -30,21 +30,15 @@ public class VEPlugin extends JavaPlugin {
 	// Custom stuff
 	private FileDatabase fileDb;
 	private SQLDatabase sqlDb;
-	private Map<UUID, VEUser> users;
-	private Map<String, VEGroup> groups;
-	private VEConfig config;
+	private Map<UUID, User> users;
+	private Map<String, Group> groups;
+	private Config config;
 	
 	// Listeners
 	public LoginListener loginListener;
 
 	public VEPlugin() {
-		
 		instance = this;
-		// Instantiate non-Bukkit services
-		this.users = new HashMap<UUID, VEUser>();
-		this.groups = new HashMap<String, VEGroup>();
-		this.fileDb = new FileDatabase(this);
-		this.sqlDb = new SQLDatabase(this);
 	}
 
 	// ================
@@ -53,17 +47,21 @@ public class VEPlugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		// First time load
+		
+		this.users = new HashMap<UUID, User>();
+		this.groups = new HashMap<String, Group>();
+		this.fileDb = new FileDatabase(this);
+		
 		try {
-			this.config = this.fileDb.loadConfig();
 			this.groups = this.fileDb.loadGroups();
-			// TODO: Load users from MySQL
-			// this.users = this.db.loadUsers();
+			this.config = this.fileDb.loadConfig();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// Instantiate Bukkit related services
+		
+		this.sqlDb = new SQLDatabase(this);
 		this.loginListener = new LoginListener(this);
+		
 		VEPlugin.log.info("<VE> " + this.getName() + " has been enabled!");
 
 	}
@@ -72,11 +70,11 @@ public class VEPlugin extends JavaPlugin {
 	public void onDisable() {
 		try {
 			
-			this.fileDb.save(this.fileDb.getUsersFile(), this::getUsers);
 			this.fileDb.save(this.fileDb.getGroupsFile(), this::getGroups);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.sqlDb.closeConnection();
 		VEPlugin.log.info("<VE> " + this.getName() + " has been disabled!");
 	}
 
@@ -84,7 +82,7 @@ public class VEPlugin extends JavaPlugin {
 	// Public API
 	// ==========
 
-	public Map<String, VEGroup> getGroups() {
+	public Map<String, Group> getGroups() {
 		return this.groups;
 	}
 
@@ -92,8 +90,22 @@ public class VEPlugin extends JavaPlugin {
 		return instance;
 	}
 
-	public Map<UUID, VEUser> getUsers() {
+	public Map<UUID, User> getUsers() {
 		return this.users;
+	}
+	
+	public void addUser(User user) {
+		this.users.put(user.getUUID(), user);
+	}
+	
+	public void removeUser(User user) {
+		this.users.remove(user.getUUID());
+	}
+	
+	public User getUser(Player player) {
+		UUID uuid = player.getUniqueId();
+		if (!this.users.containsKey(uuid)) return null;
+		return this.users.get(uuid);
 	}
 
 	public FileDatabase getFileDb() {
@@ -103,35 +115,22 @@ public class VEPlugin extends JavaPlugin {
 	public SQLDatabase getDb() {
 		return this.sqlDb;
 	}
-
-	public void addUser(VEUser user) {
-		this.users.put(user.getUUID(), user);
-	}
-
-	public boolean userExists(UUID uuid) {
-		return this.users.containsKey(uuid);
-	}
 	
-	public VEConfig getCfg() {
+	public Config getCfg() {
 		return this.config;
 	}
-
-	public boolean setPermissions(Player player) {
-		UUID uuid = player.getUniqueId();
-		if (!userExists(uuid)) {
-			// TODO: Handle could not find player
-			return false;
-		}
-		VEUser user = this.users.get(uuid);
+	
+	public boolean setPermissions(Player player, User user) {
 		for (String groupName : user.getGroups()) {
-			VEGroup group = this.groups.get(groupName);
+			Group group = this.groups.get(groupName);
+			
 			if (group == null) {
 				// TODO: Handle null
-				return false;
-			}
-			log.info("<VE> Checking group name: " + group.getName());
-			if (!group.isDefault())
 				continue;
+			}
+			
+			if (group.getName() == null) group.setName(groupName);
+			log.info("<VE> Checking group name: " + group.getName());
 			for (String permission : group.getPermissions()) {
 				log.info("<VE> Attaching permission: " + permission + " to " + player.getName());
 				player.addAttachment(this, permission, true);
@@ -141,7 +140,7 @@ public class VEPlugin extends JavaPlugin {
 	}
 
 	public String[] getDefaultGroups() {
-		List<VEGroup> defaults = new ArrayList<VEGroup>(this.groups.values());
+		List<Group> defaults = new ArrayList<Group>(this.groups.values());
 		defaults.removeIf(p -> (!p.isDefault()));
 		String[] defaultsArr = new String[defaults.size()];
 		for (int i = 0; i < defaults.size(); i++) {
