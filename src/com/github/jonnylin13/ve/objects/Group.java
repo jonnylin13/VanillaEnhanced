@@ -7,20 +7,17 @@ public class Group extends SQLObject {
 	private transient String name;
 	private String[] permissions;
 	private boolean isDefault;
-	private int level;
 	
-	public Group(String[] permissions, boolean isDefault, int level) {
+	public Group(String[] permissions, boolean isDefault) {
 		this.name = null;
 		this.permissions = permissions;
 		this.isDefault = isDefault;
-		this.level = level;
 	}
 	
-	public Group(String[] permissions, int level) {
+	public Group(String[] permissions) {
 		this.name = null;
 		this.permissions = permissions;
 		this.isDefault = false;
-		this.level = level;
 	}
 	
 	public String getName() {
@@ -37,10 +34,6 @@ public class Group extends SQLObject {
 	
 	public String[] getPermissions() {
 		return this.permissions;
-	}
-	
-	public int getLevel() {
-		return this.level;
 	}
 
 }

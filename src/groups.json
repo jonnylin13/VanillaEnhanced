@@ -3,21 +3,18 @@
     "permissions": [
       "ve.guest"
     ],
-    "isDefault": true,
-    "level": 0
+    "isDefault": true
   },
   "Member": {
     "permissions": [
       "ve.member"
     ],
-    "isDefault": false,
-    "level": 1
+    "isDefault": false
   },
   "Moderator": {
     "permissions": [
       "ve.mod"
     ],
-    "isDefault": false,
-    "level": 2
+    "isDefault": false
   }
 }
