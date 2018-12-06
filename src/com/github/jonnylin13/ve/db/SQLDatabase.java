@@ -7,10 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.github.jonnylin13.ve.VEPlugin;
+import com.github.jonnylin13.ve.constants.Queries;
 import com.github.jonnylin13.ve.objects.User;
 import com.github.jonnylin13.ve.tools.QueryParser;
-
-import constants.Queries;
 
 public class SQLDatabase {
 

@@ -2,3 +2,8 @@ name: VanillaEnhanced
 main: com.github.jonnylin13.ve.VEPlugin
 version: 0.1
 author: jonnylin13
+commands:
+  group:
+    usage: /group <player> [group]
+    description: Modify a player's group
+    permission: ve.mod

@@ -1,11 +1,15 @@
 package com.github.jonnylin13.ve.db;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -18,11 +22,15 @@ import com.github.jonnylin13.ve.objects.Config;
 import com.github.jonnylin13.ve.objects.Group;
 import com.github.jonnylin13.ve.objects.User;
 import com.github.jonnylin13.ve.tools.Filez;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 public class FileDatabase {
+	
+	public static String GROUPS = "groups.json";
+	public static String CONFIG = "config.json";
 	
 	private File groups;
 	private File users;
@@ -31,9 +39,8 @@ public class FileDatabase {
 	
 	public FileDatabase(VEPlugin instance) {
 		this.vep = instance;
-		this.groups = new File(getFilePath("groups.json"));
-		// this.users = new File(getFilePath("users.json"));
-		this.config = new File(getFilePath("config.json"));
+		this.groups = new File(getFilePath(GROUPS));
+		this.config = new File(getFilePath(CONFIG));
 		this.provision();
 	}
 	
@@ -52,7 +59,18 @@ public class FileDatabase {
 	private void provisionFile(File file) {
 		if (!file.exists()) {
 			try {
-				file.createNewFile();
+				InputStream is = this.getClass().getClassLoader().getResourceAsStream(file.getName());
+				OutputStream out = new FileOutputStream(file);
+				try {
+					byte[] buffer = new byte[is.available()];
+					for (int i = 0; i != -1; i = is.read(buffer)) {
+						out.write(buffer, 0, i);
+					}
+				} finally {
+					is.close();
+					out.close();
+				}
+				Files.copy(new File(Paths.get("src", file.getName()).toFile().getAbsolutePath()), file);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -66,7 +84,6 @@ public class FileDatabase {
 	public void provision() {
 		provisionDir(this.vep.getDataFolder());
 		provisionFile(this.groups);
-		// provisionFile(this.users);
 		provisionFile(this.config);
 	}
 	
@@ -120,6 +137,10 @@ public class FileDatabase {
 		Type type = new TypeToken<HashMap<String, Group>>() {}.getType();
 		HashMap<String, Group> result = gson.fromJson(jsonString, type);
 		if (result == null) return new HashMap<String, Group>();
+		else {
+			for (String name : result.keySet()) 
+				result.get(name).setName(name);
+		}
 		return result;
 	}
 	

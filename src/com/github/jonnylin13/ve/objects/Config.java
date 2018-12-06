@@ -1,7 +1,5 @@
 package com.github.jonnylin13.ve.objects;
 
-import java.sql.ResultSet;
-
 import com.github.jonnylin13.ve.objects.generic.SQLObject;
 
 public class Config extends SQLObject {
@@ -30,11 +28,4 @@ public class Config extends SQLObject {
 	public String getPassword() {
 		return this.password;
 	}
-	
-	@Override
-	public Config load(ResultSet rs) {
-		// TODO: ?
-		return this;
-	}
-
 }

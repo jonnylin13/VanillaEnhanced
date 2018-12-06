@@ -1,17 +1,16 @@
 package com.github.jonnylin13.ve.objects.generic;
 
 import java.lang.reflect.Field;
-import java.sql.ResultSet;
+import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.github.jonnylin13.ve.VEPlugin;
+import com.github.jonnylin13.ve.constants.Queries;
 import com.github.jonnylin13.ve.tools.QueryParser;
 import com.google.gson.Gson;
-
-import constants.Queries;
 
 public abstract class SQLObject extends JSONObject {
 	
@@ -21,8 +20,6 @@ public abstract class SQLObject extends JSONObject {
 		this.updateInfo = new HashMap<String, Boolean>();
 	}
 	
-	public abstract SQLObject load(ResultSet rs);
-	
 	public <T> void insert() {
 		try {
 			Statement statement = VEPlugin.getInstance().getDb().getConnection().createStatement();
@@ -31,6 +28,8 @@ public abstract class SQLObject extends JSONObject {
 			try {
 				for (Field field : this.getClass().getDeclaredFields()) {
 					field.setAccessible(true);
+					boolean isTransient = Modifier.isTransient(field.getModifiers());
+					if (isTransient) continue;
 					String col = field.getName();
 					Object valObj = field.get(this);
 					String val;

@@ -1,7 +1,5 @@
 package com.github.jonnylin13.ve.objects;
 
-import java.sql.ResultSet;
-
 import com.github.jonnylin13.ve.objects.generic.SQLObject;
 
 public class Group extends SQLObject {
@@ -9,17 +7,20 @@ public class Group extends SQLObject {
 	private transient String name;
 	private String[] permissions;
 	private boolean isDefault;
+	private int level;
 	
-	public Group(String[] permissions, boolean isDefault) {
+	public Group(String[] permissions, boolean isDefault, int level) {
 		this.name = null;
 		this.permissions = permissions;
 		this.isDefault = isDefault;
+		this.level = level;
 	}
 	
-	public Group(String[] permissions) {
+	public Group(String[] permissions, int level) {
 		this.name = null;
 		this.permissions = permissions;
 		this.isDefault = false;
+		this.level = level;
 	}
 	
 	public String getName() {
@@ -32,15 +33,14 @@ public class Group extends SQLObject {
 	
 	public boolean isDefault() {
 		return this.isDefault;
-	}	
+	}
 	
 	public String[] getPermissions() {
 		return this.permissions;
 	}
 	
-	@Override
-	public Group load(ResultSet rs) {
-		return this;
+	public int getLevel() {
+		return this.level;
 	}
 
 }

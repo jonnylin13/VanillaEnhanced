@@ -22,7 +22,7 @@ public class LoginListener implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		User newUser = new User(player.getUniqueId(), this.vep.getDefaultGroups());
+		User newUser = new User(player.getName(), player.getUniqueId(), this.vep.getDefaultGroups());
 		newUser = this.vep.getDb().loadUser(newUser);
 		this.vep.addUser(newUser);
 		if (!this.vep.setPermissions(player, newUser)) {
@@ -36,8 +36,10 @@ public class LoginListener implements Listener {
 		Player player = event.getPlayer();
 		User user = this.vep.getUser(player);
 		if (user != null) {
+			user.updateAsync();
 			this.vep.removeUser(user);
 		}
+		player.removeAttachment(user.getPermissions());
 		
 		
 	}
