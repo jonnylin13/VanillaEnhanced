@@ -1,0 +1,7 @@
+{
+  "Guest": {
+    "name": "Guest",
+    "permissions": ["ve.guest"],
+    "isDefault": true
+  }
+}
