@@ -15,5 +15,13 @@ public class QueryParser {
 	public static String parseUpdate(String table, String update, String condition) {
 		return String.format(Queries.UPDATE, table, update, condition);
 	}
+	
+	public static String parseCreate(String table, String schema) {
+		return String.format(Queries.CREATE_TABLE, table, schema);
+	}
+	
+	public static String parseDelete(String table, String condition) {
+		return String.format(Queries.DELETE, table, condition);
+	}
 
 }

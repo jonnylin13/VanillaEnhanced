@@ -1,8 +1,8 @@
 package com.github.jonnylin13.ve.objects;
 
-import com.github.jonnylin13.ve.objects.generic.SQLObject;
+import com.github.jonnylin13.ve.objects.generic.JSONObject;
 
-public class Group extends SQLObject {
+public class Group extends JSONObject {
 	
 	private transient String name;
 	private String[] permissions;

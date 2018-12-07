@@ -1,68 +1,106 @@
 package com.github.jonnylin13.ve.objects;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.bukkit.entity.EntityType;
 
 import com.github.jonnylin13.ve.VEPlugin;
+import com.github.jonnylin13.ve.constants.Queries;
 import com.github.jonnylin13.ve.objects.generic.SQLObject;
+import com.github.jonnylin13.ve.tools.QueryParser;
 
 public class Spawner extends SQLObject {
-	
-	private int maxNearbyEntities;
-	private int maxSpawnDelay;
-	private int minSpawnDelay;
-	private int spawnCount;
+
+	private String shortId;
 	private String spawnedType;
-	private int spawnRange;
-	
-	public Spawner(int maxNearbyEntities, int maxSpawnDelay, int minSpawnDelay, int spawnCount, String spawnedType, int spawnRange) {
-		this.maxNearbyEntities = maxNearbyEntities;
-		this.maxSpawnDelay = maxSpawnDelay;
-		this.minSpawnDelay = minSpawnDelay;
-		this.spawnCount = spawnCount;
+
+	public Spawner(String shortId, String spawnedType) {
+		this.shortId = shortId;
 		this.spawnedType = spawnedType;
-		this.spawnRange = spawnRange;
 	}
 	
+	public Spawner(String shortId) {
+		this.shortId = shortId;
+		this.spawnedType = "";
+		this.load();
+	}
+
+	// ==========
+	// Public API
+	// ==========
+
+	public String matchCondition() {
+		return "id = " + wrap(shortId);
+	}
+
 	@Override
 	public void insert() {
 		try {
-			Statement statement = VEPlugin.getInstance().getDb().getConnection().createStatement();
-			// TODO: TIRED AF
+			VEPlugin.getInstance().getDb().execute(QueryParser.parseInsert(Queries.SPAWNERS, "id, spawnedType",
+					wrap(this.shortId) + ", " + wrap(this.spawnedType)));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public int getMaxNearbyEntities() {
-		return this.maxNearbyEntities;
+
+	public void insertAsync() {
+		// TODO: Method stub
 	}
-	
-	public int getMaxSpawnDelay() {
-		return this.maxSpawnDelay;
+
+	public void update() {
+		try {
+			VEPlugin.getInstance().getDb().execute(QueryParser.parseUpdate(Queries.SPAWNERS,
+					"spawnedType = '" + this.spawnedType + "'", "where " + matchCondition()));
+			// TODO: Maybe report?
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
-	
-	public int getMinSpawnDelay() {
-		return this.minSpawnDelay;
+
+	public void updateAsync() {
+		// TODO: Method stub
 	}
-	
-	public int getSpawnCount() {
-		return this.spawnCount;
+
+	public void delete() {
+		try {
+			VEPlugin.getInstance().getDb().execute(QueryParser.parseDelete(Queries.SPAWNERS, matchCondition()));
+			// TODO: Reporting?
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
-	
+
+	public Spawner load() {
+		try {
+			ResultSet rs = VEPlugin.getInstance().getDb()
+					.query(QueryParser.parseSelect(Queries.SPAWNERS, matchCondition()));
+			if (!rs.isBeforeFirst())
+				return this; // TODO
+			rs.first();
+			this.shortId = rs.getString("id");
+			this.spawnedType = rs.getString("spawnedType");
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return this;
+	}
+
 	public String getSpawnedType() {
 		return this.spawnedType;
 	}
-	
+
 	public EntityType getSpawnedEntityType() {
 		return EntityType.valueOf(this.spawnedType);
 	}
-	
-	public int getSpawnRange() {
-		return this.spawnRange;
+
+	public String getShortId() {
+		return this.shortId;
 	}
-	
+
+	public void setId(String shortId) {
+		this.shortId = shortId;
+	}
 
 }

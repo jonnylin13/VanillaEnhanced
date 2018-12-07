@@ -25,11 +25,6 @@ public class GroupCommand implements TabExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (!label.equalsIgnoreCase("group")) return true;
-		if (!sender.hasPermission("ve.mod") && !sender.isOp()) {
-			// TODO: Handle permission message in CommandResponse
-			return true;
-		}
 		if (args.length == 1) {
 			// TODO: Implement level check somehow... think it through
 			String target = args[0];
@@ -82,11 +77,6 @@ public class GroupCommand implements TabExecutor {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
 		List<String> options = new ArrayList<String>();
-		if (!label.equalsIgnoreCase("group")) return options;
-		if (!sender.hasPermission("ve.mod") && !sender.isOp()) {
-			// TODO: Handle permission message in CommandResponse
-			return options;
-		}
 		if (args.length == 1) {
 			// TODO: Implement level check somehow... think it through
 			String target = args[0];

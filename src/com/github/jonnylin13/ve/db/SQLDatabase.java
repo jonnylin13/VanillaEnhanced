@@ -8,7 +8,6 @@ import java.sql.Statement;
 
 import com.github.jonnylin13.ve.VEPlugin;
 import com.github.jonnylin13.ve.constants.Queries;
-import com.github.jonnylin13.ve.objects.User;
 import com.github.jonnylin13.ve.tools.QueryParser;
 
 public class SQLDatabase {
@@ -26,7 +25,8 @@ public class SQLDatabase {
 		Statement statement;
 		try {
 			statement = this.connection.createStatement();
-			statement.execute(Queries.CREATE_USERS_TABLE);
+			statement.execute(QueryParser.parseCreate(Queries.USERS, Queries.USERS_SCHEMA));
+			statement.execute(QueryParser.parseCreate(Queries.SPAWNERS, Queries.SPAWNERS_SCHEMA));
 		} catch (SQLException e) {
 			// TODO: Handle exception
 			e.printStackTrace();
@@ -74,20 +74,14 @@ public class SQLDatabase {
 		return this.connection;
 	}
 	
-	public User loadUser(User user) {
-		try {
-			Statement statement = this.connection.createStatement();
-			ResultSet rs = statement.executeQuery(QueryParser.parseSelect(Queries.USERS, "uuid = '" + user.getUUID() + "'"));
-			if (!rs.isBeforeFirst()) {
-				user.insert();
-			} else {
-				user.load(rs);
-			}
-		} catch (SQLException e) {
-			// TODO: Handle exception
-			e.printStackTrace();
-		}
-		return user;
+	public ResultSet query(String query) throws SQLException {
+		Statement statement = this.getConnection().createStatement();
+		return statement.executeQuery(query);
+	}
+	
+	public boolean execute(String query) throws SQLException {
+		Statement statement = this.getConnection().createStatement();
+		return statement.execute(query);
 	}
 	
 

@@ -20,6 +20,12 @@ public abstract class SQLObject extends JSONObject {
 		this.updateInfo = new HashMap<String, Boolean>();
 	}
 	
+	public abstract String matchCondition();
+	
+	public String wrap(String token) {
+		return "'" + token + "'";
+	}
+	
 	public <T> void insert() {
 		try {
 			Statement statement = VEPlugin.getInstance().getDb().getConnection().createStatement();

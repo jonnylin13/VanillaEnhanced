@@ -13,10 +13,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.github.jonnylin13.ve.commands.member.WoodCommand;
 import com.github.jonnylin13.ve.commands.mod.GroupCommand;
 import com.github.jonnylin13.ve.db.FileDatabase;
 import com.github.jonnylin13.ve.db.SQLDatabase;
 import com.github.jonnylin13.ve.listeners.LoginListener;
+import com.github.jonnylin13.ve.listeners.LumberListener;
+import com.github.jonnylin13.ve.listeners.SilkTouchListener;
 import com.github.jonnylin13.ve.objects.Config;
 import com.github.jonnylin13.ve.objects.Group;
 import com.github.jonnylin13.ve.objects.User;
@@ -27,7 +32,7 @@ public class VEPlugin extends JavaPlugin {
 	private static VEPlugin instance;
 
 	static {
-		log = Logger.getLogger("Minecraft:VanillaEnhanced");
+		log = Logger.getLogger("VE");
 	}
 
 	// Custom stuff
@@ -36,6 +41,9 @@ public class VEPlugin extends JavaPlugin {
 	private Map<UUID, User> users;
 	private Map<String, Group> groups;
 	private Config config;
+	
+
+	private ProtocolManager protocolManager;
 
 	public VEPlugin() {
 		instance = this;
@@ -46,11 +54,14 @@ public class VEPlugin extends JavaPlugin {
 	// ===========
 	
 	private void registerListeners() {
-		new LoginListener(this);
+		new LoginListener();
+		new SilkTouchListener();
+		new LumberListener();
 	}
 	
 	private void registerCommands() {
 		new GroupCommand();
+		new WoodCommand();
 	}
 	
 	// ================
@@ -60,6 +71,7 @@ public class VEPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		
+		this.protocolManager = ProtocolLibrary.getProtocolManager();
 		this.users = new HashMap<UUID, User>();
 		this.groups = new HashMap<String, Group>();
 		this.fileDb = new FileDatabase(this);
@@ -121,8 +133,8 @@ public class VEPlugin extends JavaPlugin {
 		this.users.remove(user.getUUID());
 	}
 	
-	public User getUser(OfflinePlayer p) {
-		UUID uuid = p.getUniqueId();
+	public User getUser(OfflinePlayer player) {
+		UUID uuid = player.getUniqueId();
 		if (!this.users.containsKey(uuid)) return null;
 		return this.users.get(uuid);
 	}
@@ -168,6 +180,10 @@ public class VEPlugin extends JavaPlugin {
 			defaultsArr[i] = defaults.get(i).getName();
 		}
 		return defaultsArr;
+	}
+	
+	public ProtocolManager getProtocolManager() {
+		return this.protocolManager;
 	}
 
 }

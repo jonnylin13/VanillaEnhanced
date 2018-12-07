@@ -12,20 +12,17 @@ import com.github.jonnylin13.ve.objects.User;
 
 public class LoginListener implements Listener {
 	
-	private VEPlugin vep;
-	
-	public LoginListener(VEPlugin instance) {
-		this.vep = instance;
-		instance.getServer().getPluginManager().registerEvents(this, instance);
+	public LoginListener() {
+		VEPlugin.getInstance().getServer().getPluginManager().registerEvents(this, VEPlugin.getInstance());
 	}
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		User newUser = new User(player.getName(), player.getUniqueId(), this.vep.getDefaultGroups());
-		newUser = this.vep.getDb().loadUser(newUser);
-		this.vep.addUser(newUser);
-		if (!this.vep.setPermissions(player, newUser)) {
+		User newUser = new User(player.getName(), player.getUniqueId(), VEPlugin.getInstance().getDefaultGroups());
+		newUser = newUser.load();
+		VEPlugin.getInstance().addUser(newUser);
+		if (!VEPlugin.getInstance().setPermissions(player, newUser)) {
 			VEPlugin.log.info("<VE> Could not set permissions for player: " + player.getName());
 		}
 	}
@@ -34,13 +31,12 @@ public class LoginListener implements Listener {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		// TODO: Save player async
 		Player player = event.getPlayer();
-		User user = this.vep.getUser(player);
+		User user = VEPlugin.getInstance().getUser(player);
 		if (user != null) {
 			user.updateAsync();
-			this.vep.removeUser(user);
+			VEPlugin.getInstance().removeUser(user);
 		}
 		player.removeAttachment(user.getPermissions());
-		
 		
 	}
 

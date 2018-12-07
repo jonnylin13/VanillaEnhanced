@@ -102,6 +102,7 @@ public class FileDatabase {
 		String jsonString = Filez.readFile(this.config, Charset.defaultCharset());
 		Gson gson = (new GsonBuilder()).setPrettyPrinting().create();
 		Config result = gson.fromJson(jsonString, Config.class);
+		// TODO: Use defaults
 		if (result == null) return new Config("", "", "", "");
 		return result;
 	}

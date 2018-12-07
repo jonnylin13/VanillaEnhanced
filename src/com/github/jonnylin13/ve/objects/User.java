@@ -19,12 +19,18 @@ public class User extends SQLObject {
 	private UUID uuid;
 	private String[] groups;
 	private transient PermissionAttachment permissions;
+	private transient boolean woodcutting;
 
 	public User(String name, UUID uuid, String[] groups) {
 		this.name = name;
 		this.uuid = uuid;
 		this.groups = groups;
 		this.permissions = null;
+		this.woodcutting = false;
+	}
+	
+	public String matchCondition() {
+		return "uuid = '" + this.uuid + "'";
 	}
 
 	public UUID getUUID() {
@@ -43,13 +49,23 @@ public class User extends SQLObject {
 		this.groups = groups;
 	}
 
-	public User load(ResultSet rs) {
+	public User load() {
 		try {
-			rs.first();
-			this.uuid = UUID.fromString(rs.getString("uuid"));
-			this.name = rs.getString("name");
-			Gson gson = new Gson();
-			this.groups = gson.fromJson(rs.getString("groups"), String[].class);
+			
+			Statement statement = VEPlugin.getInstance().getDb().getConnection().createStatement();
+			ResultSet rs = statement.executeQuery(QueryParser.parseSelect(Queries.USERS, matchCondition()));
+			if (!rs.isBeforeFirst()) {
+				this.insert();
+			} else {
+				rs.first();
+				this.uuid = UUID.fromString(rs.getString("uuid"));
+				this.name = rs.getString("name");
+				Gson gson = new Gson();
+				this.groups = gson.fromJson(rs.getString("groups"), String[].class);
+				rs.close();
+			}
+			
+			
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -63,7 +79,7 @@ public class User extends SQLObject {
 			Statement statement = VEPlugin.getInstance().getDb().getConnection().createStatement();
 			Gson gson = new Gson();
 			statement.execute(QueryParser.parseUpdate(Queries.USERS, "groups = '" + gson.toJson(this.groups) + "'",
-					"uuid = '" + this.uuid.toString() + "'"));
+					matchCondition()));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -92,6 +108,15 @@ public class User extends SQLObject {
 	
 	public void setPermissions(PermissionAttachment permissions) {
 		this.permissions = permissions;
+	}
+	
+	public boolean toggleWoodcutting() {
+		this.woodcutting = !this.woodcutting;
+		return this.woodcutting;
+	}
+	
+	public boolean getWoodcutting() {
+		return this.woodcutting;
 	}
 
 }

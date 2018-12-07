@@ -2,8 +2,55 @@ name: VanillaEnhanced
 main: com.github.jonnylin13.ve.VEPlugin
 version: 0.1
 author: jonnylin13
+website: https://github.com/jonnylin13/VanillaEssentials
+database: true
+api-version: 1.13
+prefix: VE
+depend: [ProtocolLib]
+
 commands:
   group:
     usage: /group <player> [group]
-    description: Modify a player's group
+    description: Modify a player's group.
     permission: ve.mod
+  wood:
+    usage: /wood
+    description: Toggles the woodcutting skill.
+    permission: ve.woodcutter
+
+permissions:
+  ve.*:
+    description: Access to all VE commands.
+    children:
+      ve.admin: true
+  ve.admin:
+    description: Access to all admin commands.
+    children:
+      ve.mod: true
+  ve.mod:
+    description: Access to all moderator commands.
+    children:
+      ve.member: true
+      ve.spawner: true
+  ve.member:
+    description: Access to all member commands.
+    children:
+      ve.guest: true
+      ve.woodcutter: true
+  ve.guest:
+    description: Access to all guest commands.
+    default: true
+  ve.spawner.*:
+    description: Allows spawner interaction.
+    children:
+      ve.spawner.break: true
+      ve.spawner.place: true
+  ve.spawner.break:
+    description: Allows breaking of spawners.
+    default: false
+  ve.spawner.place:
+    description: Allows placing of spawners.
+    default: false
+  ve.woodcutter:
+    description: Gives woodcutting perk.
+    default: false

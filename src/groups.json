@@ -1,4 +1,23 @@
 {
+  "Developer": {
+    "permissions": [
+      "ve.*"
+    ],
+    "isDefault": false
+  },
+  "Admin": {
+    "permissions": [
+      "ve.admin"
+    ],
+    "isDefault": false
+  },
+  "Moderator": {
+    "permissions": [
+      "ve.mod",
+      "ve.spawner.*"
+    ],
+    "isDefault": false
+  },
   "Guest": {
     "permissions": [
       "ve.guest"
@@ -7,13 +26,8 @@
   },
   "Member": {
     "permissions": [
-      "ve.member"
-    ],
-    "isDefault": false
-  },
-  "Moderator": {
-    "permissions": [
-      "ve.mod"
+      "ve.member",
+      "ve.woodcutter"
     ],
     "isDefault": false
   }

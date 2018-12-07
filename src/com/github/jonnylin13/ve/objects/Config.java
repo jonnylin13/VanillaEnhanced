@@ -1,8 +1,8 @@
 package com.github.jonnylin13.ve.objects;
 
-import com.github.jonnylin13.ve.objects.generic.SQLObject;
+import com.github.jonnylin13.ve.objects.generic.JSONObject;
 
-public class Config extends SQLObject {
+public class Config extends JSONObject {
 
 	private String host, database, username, password;
 
