@@ -76,7 +76,7 @@ public class Spawner extends SQLObject {
 			ResultSet rs = VEPlugin.getInstance().getDb()
 					.query(QueryParser.parseSelect(Queries.SPAWNERS, matchCondition()));
 			if (!rs.isBeforeFirst())
-				return this; // TODO
+				return this; // TODO: Handle not found
 			rs.first();
 			this.shortId = rs.getString("id");
 			this.spawnedType = rs.getString("spawnedType");
