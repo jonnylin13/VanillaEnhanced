@@ -9,19 +9,20 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.github.jonnylin13.ve.commands.member.StatsCommand;
 import com.github.jonnylin13.ve.commands.member.WoodCommand;
-import com.github.jonnylin13.ve.commands.mod.GroupCommand;
+import com.github.jonnylin13.ve.commands.mod.GroupsCommand;
 import com.github.jonnylin13.ve.db.FileDatabase;
 import com.github.jonnylin13.ve.db.SQLDatabase;
 import com.github.jonnylin13.ve.listeners.LoginListener;
 import com.github.jonnylin13.ve.listeners.LumberListener;
+import com.github.jonnylin13.ve.listeners.MobListener;
 import com.github.jonnylin13.ve.listeners.SilkTouchListener;
+import com.github.jonnylin13.ve.listeners.XpListener;
 import com.github.jonnylin13.ve.objects.Config;
 import com.github.jonnylin13.ve.objects.Group;
 import com.github.jonnylin13.ve.objects.User;
@@ -57,11 +58,14 @@ public class VEPlugin extends JavaPlugin {
 		new LoginListener();
 		new SilkTouchListener();
 		new LumberListener();
+		new MobListener();
+		new XpListener();
 	}
 	
 	private void registerCommands() {
-		new GroupCommand();
+		new GroupsCommand();
 		new WoodCommand();
+		new StatsCommand();
 	}
 	
 	// ================
@@ -88,7 +92,6 @@ public class VEPlugin extends JavaPlugin {
 		this.registerCommands();
 		
 		VEPlugin.log.info("<VE> " + this.getName() + " has been enabled!");
-
 	}
 
 	@Override
@@ -149,27 +152,6 @@ public class VEPlugin extends JavaPlugin {
 	
 	public Config getCfg() {
 		return this.config;
-	}
-	
-	public boolean setPermissions(Player player, User user) {
-		PermissionAttachment permissions = player.addAttachment(VEPlugin.getInstance());
-		for (String groupName : user.getGroups()) {
-			Group group = this.groups.get(groupName);
-			
-			if (group == null) {
-				// TODO: Handle null
-				return false;
-			}
-			
-			if (group.getName() == null) group.setName(groupName);
-			log.info("<VE> Checking group name: " + group.getName());
-			for (String permission : group.getPermissions()) {
-				log.info("<VE> Attaching permission: " + permission + " to " + player.getName());
-				permissions.setPermission(permission, true);
-			}
-		}
-		user.setPermissions(permissions);
-		return true;
 	}
 
 	public String[] getDefaultGroups() {

@@ -23,7 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.github.jonnylin13.ve.VEPlugin;
 import com.github.jonnylin13.ve.objects.Spawner;
-import com.github.jonnylin13.ve.tools.Tools;
+import com.github.jonnylin13.ve.tools.Toolz;
 
 public class SilkTouchListener implements Listener {
 
@@ -42,13 +42,14 @@ public class SilkTouchListener implements Listener {
 					event.setCancelled(true);
 					return;
 				}
+				event.setExpToDrop(0);
 				CreatureSpawner cs = (CreatureSpawner) block.getState();
 				ItemStack drop = new ItemStack(Material.SPAWNER);
 				ItemMeta meta = Bukkit.getItemFactory().getItemMeta(Material.SPAWNER);
 				List<String> lore = new ArrayList<String>();
-				Spawner spawner = new Spawner(Tools.generateShortId(), cs.getSpawnedType().toString());
+				Spawner spawner = new Spawner(Toolz.generateShortId(), cs.getSpawnedType().toString());
 				spawner.insert();
-				meta.setDisplayName(Tools.prettyEnum(spawner.getSpawnedType()) + " Spawner");
+				meta.setDisplayName(Toolz.prettyEnum(spawner.getSpawnedType()) + " Spawner");
 				lore.add(spawner.getShortId());
 				meta.setLore(lore);
 				drop.setItemMeta(meta);
@@ -82,7 +83,6 @@ public class SilkTouchListener implements Listener {
 				
 				state.update();
 				spawner.delete();
-				
 				
 			}, 0L);
 			if (player.getGameMode() == GameMode.CREATIVE) {

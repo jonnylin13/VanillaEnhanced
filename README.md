@@ -9,9 +9,11 @@ This is for my personal use, so anyone is welcome to fork or use themselves! I'v
 * Permissions
 * Retrievable spawners with silk touch
 * Toggleable instant woodcutting
+* Custom mobs, EXP, and level system
 
 ## Plans
 
+* **Current plans:** RPG elements (upgrade health, chance to invis on crouch, chance for critical on crouch)
 * Instant woodcutting becomes accessible w/ a craftable axe
 * Teleport scrolls can be crafted and bound to a location or player's home, teleport on consume
 * Wireless redstone transmitters/receivers

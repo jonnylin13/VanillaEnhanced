@@ -5,38 +5,33 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
 
+import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
 import com.github.jonnylin13.ve.VEPlugin;
 import com.github.jonnylin13.ve.constants.Queries;
-import com.github.jonnylin13.ve.objects.generic.SQLObject;
+import com.github.jonnylin13.ve.objects.generic.CustomEntity;
 import com.github.jonnylin13.ve.tools.QueryParser;
+import com.github.jonnylin13.ve.tools.Toolz;
 import com.google.gson.Gson;
 
-public class User extends SQLObject {
+public class User extends CustomEntity {
 
 	private String name;
-	private UUID uuid;
 	private String[] groups;
 	private transient PermissionAttachment permissions;
 	private transient boolean woodcutting;
+	private int xp;
 
 	public User(String name, UUID uuid, String[] groups) {
+		super(uuid, 1);
 		this.name = name;
-		this.uuid = uuid;
 		this.groups = groups;
 		this.permissions = null;
 		this.woodcutting = false;
+		this.xp = 0;
 	}
 	
-	public String matchCondition() {
-		return "uuid = '" + this.uuid + "'";
-	}
-
-	public UUID getUUID() {
-		return this.uuid;
-	}
-
 	public String[] getGroups() {
 		return this.groups;
 	}
@@ -58,10 +53,12 @@ public class User extends SQLObject {
 				this.insert();
 			} else {
 				rs.first();
-				this.uuid = UUID.fromString(rs.getString("uuid"));
+				this.setUUID(UUID.fromString(rs.getString("uuid")));
 				this.name = rs.getString("name");
 				Gson gson = new Gson();
 				this.groups = gson.fromJson(rs.getString("groups"), String[].class);
+				this.setLevel(rs.getInt("level"));
+				this.xp = rs.getInt("xp");
 				rs.close();
 			}
 			
@@ -78,11 +75,32 @@ public class User extends SQLObject {
 		try {
 			Statement statement = VEPlugin.getInstance().getDb().getConnection().createStatement();
 			Gson gson = new Gson();
-			statement.execute(QueryParser.parseUpdate(Queries.USERS, "groups = '" + gson.toJson(this.groups) + "'",
+			statement.execute(QueryParser.parseUpdate(Queries.USERS, "groups = " + wrap(gson.toJson(this.groups))
+					+ ", level = " + String.valueOf(this.getLevel())
+					+ ", xp = " + String.valueOf(this.xp),
 					matchCondition()));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean setPermissions(Player player) {
+		PermissionAttachment permissions = player.addAttachment(VEPlugin.getInstance());
+		for (String groupName : this.getGroups()) {
+			Group group = VEPlugin.getInstance().getGroup(groupName);
+			
+			if (group == null) {
+				// TODO: Handle null
+				return false;
+			}
+			
+			if (group.getName() == null) group.setName(groupName);
+			for (String permission : group.getPermissions()) {
+				permissions.setPermission(permission, true);
+			}
+		}
+		this.permissions = permissions;
+		return true;
 	}
 	
 	public void updateAsync() {
@@ -106,10 +124,6 @@ public class User extends SQLObject {
 		return this.permissions;
 	}
 	
-	public void setPermissions(PermissionAttachment permissions) {
-		this.permissions = permissions;
-	}
-	
 	public boolean toggleWoodcutting() {
 		this.woodcutting = !this.woodcutting;
 		return this.woodcutting;
@@ -117,6 +131,19 @@ public class User extends SQLObject {
 	
 	public boolean getWoodcutting() {
 		return this.woodcutting;
+	}
+	
+	public int getXp() {
+		return this.xp;
+	}
+	
+	public boolean addXp(int add) {
+		this.xp += add;
+		if (this.xp >= Toolz.getXpRequired(this.getLevel() + 1)) {
+			this.setLevel(this.getLevel() + 1);
+			return true;
+		}
+		return false;
 	}
 
 }

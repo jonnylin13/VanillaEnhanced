@@ -16,11 +16,11 @@ import com.google.common.collect.Lists;
 
 import net.md_5.bungee.api.ChatColor;
 
-public class GroupCommand implements TabExecutor {
+public class GroupsCommand implements TabExecutor {
 	
-	public GroupCommand() {
-		VEPlugin.getInstance().getCommand("group").setExecutor(this);
-		VEPlugin.getInstance().getCommand("group").setTabCompleter(this);
+	public GroupsCommand() {
+		VEPlugin.getInstance().getCommand("groups").setExecutor(this);
+		VEPlugin.getInstance().getCommand("groups").setTabCompleter(this);
 	}
 
 	@Override
@@ -48,10 +48,7 @@ public class GroupCommand implements TabExecutor {
 			}
 			User user = VEPlugin.getInstance().getUser(p);
 			List<String> groupList = Lists.newArrayList(user.getGroups());
-			if (!VEPlugin.getInstance().getGroups().containsKey(groupName)) {
-				// TODO: Handle
-				return true;
-			}
+
 			if (groupList.contains(groupName)) {
 				groupList.remove(groupName);
 				for (String permission : VEPlugin.getInstance().getGroup(groupName).getPermissions()) {

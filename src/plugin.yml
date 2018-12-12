@@ -9,48 +9,57 @@ prefix: VE
 depend: [ProtocolLib]
 
 commands:
-  group:
-    usage: /group <player> [group]
-    description: Modify a player's group.
+  groups:
+    usage: /groups <player> [group]
+    description: Modify a player's group array
     permission: ve.mod
   wood:
     usage: /wood
-    description: Toggles the woodcutting skill.
+    description: Toggles the woodcutting skill
     permission: ve.woodcutter
+  stats:
+    usage: /stats
+    description: Displays player stats
+    permission: ve.stats
 
 permissions:
   ve.*:
-    description: Access to all VE commands.
+    description: Access to all VE commands
     children:
       ve.admin: true
   ve.admin:
-    description: Access to all admin commands.
+    description: Access to all admin commands
     children:
       ve.mod: true
   ve.mod:
-    description: Access to all moderator commands.
+    description: Access to all moderator commands
     children:
       ve.member: true
       ve.spawner: true
   ve.member:
-    description: Access to all member commands.
+    description: Access to all member commands
     children:
       ve.guest: true
       ve.woodcutter: true
   ve.guest:
-    description: Access to all guest commands.
+    description: Access to all guest commands
     default: true
+    children:
+      ve.stats: true
   ve.spawner.*:
-    description: Allows spawner interaction.
+    description: Allows spawner interaction
     children:
       ve.spawner.break: true
       ve.spawner.place: true
   ve.spawner.break:
-    description: Allows breaking of spawners.
+    description: Allows breaking of spawners
     default: false
   ve.spawner.place:
-    description: Allows placing of spawners.
+    description: Allows placing of spawners
     default: false
   ve.woodcutter:
-    description: Gives woodcutting perk.
+    description: Gives woodcutting perk
+    default: false
+  ve.stats:
+    description: Displays player stats
     default: false

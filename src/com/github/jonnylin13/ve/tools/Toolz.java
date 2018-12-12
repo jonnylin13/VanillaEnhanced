@@ -5,10 +5,12 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 
+import com.github.jonnylin13.ve.constants.RPG;
+
 import net.minecraft.server.v1_13_R2.BlockPosition;
 import net.minecraft.server.v1_13_R2.IBlockData;
 
-public class Tools {
+public class Toolz {
 	
 	public static String generateShortId() {
 		return RandomStringUtils.randomAlphanumeric(8);
@@ -27,7 +29,7 @@ public class Tools {
 			}
 			return result;
 		} else {
-			return Tools.prettyWord(enumString);
+			return Toolz.prettyWord(enumString);
 		}
 	}
 	
@@ -42,6 +44,10 @@ public class Tools {
 				.getType(new BlockPosition(block.getX(), block.getY(), block.getZ()));
 		net.minecraft.server.v1_13_R2.Block nmsBlock = blockData.getBlock();
 		return nmsBlock;
+	}
+	
+	public static int getXpRequired(int level) {
+		return (int) Math.round(Math.pow(level * RPG.XP_MODIFIER, 2));
 	}
 
 }

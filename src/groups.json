@@ -20,7 +20,8 @@
   },
   "Guest": {
     "permissions": [
-      "ve.guest"
+      "ve.guest",
+      "ve.stats"
     ],
     "isDefault": true
   },

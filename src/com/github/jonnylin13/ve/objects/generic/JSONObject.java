@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 
-public class JSONObject {
+public abstract class JSONObject {
 
 	public static <T> T fromJson(String jsonString, Class<T> classOfT) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
